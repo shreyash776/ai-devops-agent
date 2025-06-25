@@ -9,16 +9,23 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@langchain/core": "^0.3.61",
+    "@langchain/openai": "^0.5.15",
+    "@octokit/rest": "^22.0.0",
+    "dotenv": "^16.5.0",
+    "js-yaml": "^4.1.0",
+    "mustache": "^4.2.0",
+    "next": "15.3.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.3.4"
+    "simple-git": "^3.28.0"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4"
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }
