@@ -42,7 +42,7 @@ export default function Home() {
       </form>
       {result && (
         <pre className="bg-gray-100 p-4 rounded text-xs overflow-x-auto">
-          {JSON.stringify(result, null, 2)}
+          {JSON.stringify(result, null, 2)} 
         </pre>
       )}
     </main>
