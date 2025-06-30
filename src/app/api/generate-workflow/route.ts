@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateDockerfileForRepo } from '@/lib/agent';
+import { generateWorkflowForRepo } from '@/lib/agent';
 
 export async function POST(req: NextRequest) {
   const { repo } = await req.json();
@@ -8,9 +8,9 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // Destructure to extract only the string
-    const { dockerfile } = await generateDockerfileForRepo(repo);
-    return NextResponse.json({ dockerfile });
+   
+    const { workflow } = await generateWorkflowForRepo(repo);
+    return NextResponse.json({ workflow });
   } catch (error: any) {
     console.error('API Error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });

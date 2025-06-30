@@ -34,9 +34,10 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
  */
 function cleanMarkdownResponse(content: string): string {
   if (!content) return "";
-  // Removes `````` and ``````
+  // Removes ``````, ``````, or even ``````
   return content.replace(/``````/g, "$1").trim();
 }
+
 
 /**
  * Extracts plain text from Gemini LLM response (handles string, object, and array cases).
@@ -62,7 +63,7 @@ export async function generateDockerfile(analysis: any): Promise<string> {
 You are an expert DevOps engineer. Generate a production-ready Dockerfile for a project with these details:
 Languages: ${Object.keys(analysis.languages).join(', ')}
 Description: ${analysis.description || "No description provided."}
-Respond with ONLY the Dockerfile content. DO NOT include any markdown code blocks or extra commentary.
+Respond with ONLY the Dockerfile content. DO NOT include any markdown code blocks, code fences, or extra commentary.
   `.trim();
 
   try {
@@ -80,7 +81,7 @@ export async function generateWorkflow(analysis: any): Promise<string> {
 You are an expert in CI/CD. Generate a GitHub Actions workflow YAML for building and testing a project with these details:
 Languages: ${Object.keys(analysis.languages).join(', ')}
 Default branch: ${analysis.default_branch}
-Respond with ONLY the YAML content. DO NOT include any markdown code blocks or extra commentary.
+Respond with ONLY the YAML content. DO NOT include any markdown code blocks, code fences, or extra commentary.
   `.trim();
 
   try {
