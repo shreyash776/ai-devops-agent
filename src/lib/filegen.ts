@@ -1,21 +1,14 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 
-/**
- * Removes markdown code fences from LLM output.
- */
+
 function cleanMarkdownResponse(content: string): string {
   if (!content) return "";
-  // Remove all Markdown code fences (``` or ```
-  // This removes lines starting with ```
   return content
-    // Remove all Markdown code fences (``` or ```)
-    .replace(/^```.*$/gm, "")
-    .replace(/```/g, "")        
+    .replace(/^```[a-zA-Z0-9]*\n?/, "")
+    .replace(/```/g, "")
     .trim();
 }
-/**
- * Extracts plain text from Gemini LLM response (handles string, object, and array cases).
- */
+
 function extractTextContent(res: any): string {
   if (!res) return "";
   if (typeof res === "string") return res.trim();
@@ -31,6 +24,7 @@ const llm = new ChatGoogleGenerativeAI({
   temperature: 0.2,
   maxRetries: 3,
 });
+
 
 export async function generateDockerfile(analysis: any): Promise<string> {
   let prompt = "";
@@ -71,6 +65,7 @@ Respond with ONLY the Dockerfile content. DO NOT include any markdown code block
   }
 }
 
+
 export async function generateWorkflow(analysis: any): Promise<string> {
   let prompt = "";
 
@@ -109,5 +104,89 @@ Respond with ONLY the YAML content. DO NOT include any markdown code blocks, cod
   } catch (error) {
     console.error("Error generating workflow:", error);
     return "# Error: Unable to generate workflow YAML.";
+  }
+}
+
+
+export async function reviewDockerfile(dockerfileContent: string): Promise<string> {
+  const prompt = `
+You are a DevOps expert. Review the following Dockerfile for security, efficiency, and best practices.
+Suggest improvements and explain your reasoning.
+Dockerfile:
+${dockerfileContent}
+  `.trim();
+  try {
+    const res = await llm.invoke(prompt);
+    return cleanMarkdownResponse(extractTextContent(res));
+  } catch (error) {
+    console.error("Error reviewing Dockerfile:", error);
+    return "# Error: Unable to review Dockerfile.";
+  }
+}
+
+
+export async function reviewWorkflow(workflowContent: string): Promise<string> {
+  const prompt = `
+You are a CI/CD expert. Review the following GitHub Actions workflow YAML for best practices, security, and efficiency.
+Suggest improvements and explain your reasoning.
+Workflow YAML:
+${workflowContent}
+  `.trim();
+  try {
+    const res = await llm.invoke(prompt);
+    return cleanMarkdownResponse(extractTextContent(res));
+  } catch (error) {
+    console.error("Error reviewing workflow:", error);
+    return "# Error: Unable to review workflow.";
+  }
+}
+
+
+export async function securityAudit(analysis: any): Promise<string> {
+  const prompt = `
+You are a security auditor. Analyze this project's configuration and files for security risks or vulnerabilities.
+Project details:
+${JSON.stringify(analysis, null, 2)}
+List all findings and suggest fixes.
+  `.trim();
+  try {
+    const res = await llm.invoke(prompt);
+    return cleanMarkdownResponse(extractTextContent(res));
+  } catch (error) {
+    console.error("Error during security audit:", error);
+    return "# Error: Unable to perform security audit.";
+  }
+}
+
+
+export async function generateDocs(analysis: any): Promise<string> {
+  const prompt = `
+You are a DevOps documentation expert. Generate clear documentation for the project's Dockerfile and CI/CD workflow.
+Project details:
+${JSON.stringify(analysis, null, 2)}
+Documentation should explain how to use the Dockerfile and workflow, and how to contribute.
+  `.trim();
+  try {
+    const res = await llm.invoke(prompt);
+    return cleanMarkdownResponse(extractTextContent(res));
+  } catch (error) {
+    console.error("Error generating documentation:", error);
+    return "# Error: Unable to generate documentation.";
+  }
+}
+
+
+export async function explainFile(fileContent: string, fileType: string): Promise<string> {
+  const prompt = `
+Explain the following ${fileType} file in simple terms for a developer new to DevOps.
+${fileType} content:
+${fileContent}
+  `.trim();
+  try {
+    const res = await llm.invoke(prompt);
+    return cleanMarkdownResponse(extractTextContent(res));
+  } catch (error) {
+    console.error("Error explaining file:", error);
+    return "# Error: Unable to explain file.";
   }
 }
