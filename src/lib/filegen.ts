@@ -1,32 +1,3 @@
-// import { ChatOpenAI } from '@langchain/openai';
-
-// const llm = new ChatOpenAI({
-//   openAIApiKey: process.env.OPENAI_API_KEY,
-//   modelName: 'gpt-4',
-// });
-
-// export async function generateDockerfile(analysis: any) {
-//   const prompt = `
-// You are an expert DevOps engineer. Generate a production-ready Dockerfile for a project with these details:
-// Languages: ${Object.keys(analysis.languages).join(', ')}
-// Description: ${analysis.description}
-// Respond with only the Dockerfile content.
-//   `;
-//   const res = await llm.invoke(prompt);
-//   return res.content;
-// }
-
-// export async function generateWorkflow(analysis: any) {
-//   const prompt = `
-// You are an expert in CI/CD. Generate a GitHub Actions workflow YAML for building and testing a project with these details:
-// Languages: ${Object.keys(analysis.languages).join(', ')}
-// Default branch: ${analysis.default_branch}
-// Respond with only the YAML content.
-//   `;
-//   const res = await llm.invoke(prompt);
-//   return res.content;
-// }
-
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 
 /**
@@ -34,11 +5,14 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
  */
 function cleanMarkdownResponse(content: string): string {
   if (!content) return "";
-  // Removes ``````, ``````, or even ``````
-  return content.replace(/``````/g, "$1").trim();
+  // Remove all Markdown code fences (``` or ```
+  // This removes lines starting with ```
+  return content
+    // Remove all Markdown code fences (``` or ```)
+    .replace(/^```.*$/gm, "")
+    .replace(/```/g, "")        
+    .trim();
 }
-
-
 /**
  * Extracts plain text from Gemini LLM response (handles string, object, and array cases).
  */
@@ -59,12 +33,33 @@ const llm = new ChatGoogleGenerativeAI({
 });
 
 export async function generateDockerfile(analysis: any): Promise<string> {
-  const prompt = `
+  let prompt = "";
+
+  if (analysis.packageJson) {
+    prompt = `
+You are an expert DevOps engineer. Generate a production-ready Dockerfile for a Node.js project.
+Here is the package.json:
+${JSON.stringify(analysis.packageJson, null, 2)}
+${analysis.readme ? `\nHere is the README:\n${analysis.readme}` : ""}
+Respond with ONLY the Dockerfile content. DO NOT include any markdown code blocks, code fences, or extra commentary.
+    `.trim();
+  } else if (analysis.requirementsTxt) {
+    prompt = `
+You are an expert DevOps engineer. Generate a production-ready Dockerfile for a Python project.
+Here is the requirements.txt:
+${analysis.requirementsTxt}
+${analysis.readme ? `\nHere is the README:\n${analysis.readme}` : ""}
+Respond with ONLY the Dockerfile content. DO NOT include any markdown code blocks, code fences, or extra commentary.
+    `.trim();
+  } else {
+    prompt = `
 You are an expert DevOps engineer. Generate a production-ready Dockerfile for a project with these details:
 Languages: ${Object.keys(analysis.languages).join(', ')}
 Description: ${analysis.description || "No description provided."}
+${analysis.readme ? `\nHere is the README:\n${analysis.readme}` : ""}
 Respond with ONLY the Dockerfile content. DO NOT include any markdown code blocks, code fences, or extra commentary.
-  `.trim();
+    `.trim();
+  }
 
   try {
     const res = await llm.invoke(prompt);
@@ -77,12 +72,35 @@ Respond with ONLY the Dockerfile content. DO NOT include any markdown code block
 }
 
 export async function generateWorkflow(analysis: any): Promise<string> {
-  const prompt = `
+  let prompt = "";
+
+  if (analysis.packageJson) {
+    prompt = `
+You are an expert in CI/CD. Generate a GitHub Actions workflow YAML for building and testing a Node.js project.
+Here is the package.json:
+${JSON.stringify(analysis.packageJson, null, 2)}
+Default branch: ${analysis.default_branch}
+${analysis.readme ? `\nHere is the README:\n${analysis.readme}` : ""}
+Respond with ONLY the YAML content. DO NOT include any markdown code blocks, code fences, or extra commentary.
+    `.trim();
+  } else if (analysis.requirementsTxt) {
+    prompt = `
+You are an expert in CI/CD. Generate a GitHub Actions workflow YAML for building and testing a Python project.
+Here is the requirements.txt:
+${analysis.requirementsTxt}
+Default branch: ${analysis.default_branch}
+${analysis.readme ? `\nHere is the README:\n${analysis.readme}` : ""}
+Respond with ONLY the YAML content. DO NOT include any markdown code blocks, code fences, or extra commentary.
+    `.trim();
+  } else {
+    prompt = `
 You are an expert in CI/CD. Generate a GitHub Actions workflow YAML for building and testing a project with these details:
 Languages: ${Object.keys(analysis.languages).join(', ')}
 Default branch: ${analysis.default_branch}
+${analysis.readme ? `\nHere is the README:\n${analysis.readme}` : ""}
 Respond with ONLY the YAML content. DO NOT include any markdown code blocks, code fences, or extra commentary.
-  `.trim();
+    `.trim();
+  }
 
   try {
     const res = await llm.invoke(prompt);
