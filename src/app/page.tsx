@@ -4,9 +4,9 @@ import ReactMarkdown from 'react-markdown';
 import { FaDocker, FaGithub, FaFileAlt, FaMagic, FaShieldAlt, FaRegFileCode } from 'react-icons/fa';
 import { MdOutlineDescription, MdOutlineFileDownload } from 'react-icons/md';
 import { ImSpinner2 } from 'react-icons/im';
-
+import FeatureHighlights from '@/components/FeatureHighlights';
 import HeroSection from '@/components/HeroSection';
-import ServiceOverviewCards from '@/components/ServiceOverviewCards';
+
 
 const SERVICE_META = {
   'review-dockerfile': {
@@ -227,9 +227,9 @@ export default function Home() {
       <header className="flex items-center justify-between px-8 py-6 border-b border-gray-200 bg-white">
         <div className="flex items-center gap-3">
           <FaMagic className="text-3xl text-lime-500" />
-          <span className="font-extrabold text-2xl text-gray-900 tracking-tight">DevOps Agent</span>
+          <span className="font-extrabold text-2xl text-gray-900 tracking-tight">CodeFlow AI</span>
         </div>
-        <button className="bg-black text-white px-5 py-2 rounded-full font-semibold shadow hover:bg-gray-900 transition">Get Started — Free</button>
+       
       </header>
 
       
@@ -341,6 +341,7 @@ export default function Home() {
         )}
       
       </main>
+      <FeatureHighlights/>
     </div>
   );
 }
