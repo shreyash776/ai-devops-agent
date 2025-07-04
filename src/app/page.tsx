@@ -9,6 +9,37 @@ import HeroSection from '@/components/HeroSection';
 import CircularProgressBar from '@/components/CircularProgressBar';
 
 
+type ServiceKey =
+  | 'review-dockerfile'
+  | 'generate-dockerfile'
+  | 'review-workflow'
+  | 'generate-workflow'
+  | 'security-audit'
+  | 'generate-docs'
+  | 'explain-dockerfile'
+  | 'explain-workflow';
+
+type Scores = {
+  documentation: number;
+  security: number;
+  ci: number;
+  hygiene: number;
+  overall: number;
+};
+
+type Analysis = {
+  dockerfileContent?: string;
+  fileTree: string[];
+  scores?: Scores;
+  // add any other fields your backend returns
+  [key: string]: any;
+};
+
+type LastGenFile = {
+  path: string;
+  content: string;
+} | null;
+
 const SERVICE_META = {
   'review-dockerfile': {
     icon: <FaDocker className="text-blue-500 text-2xl" />,
@@ -53,16 +84,17 @@ const SERVICE_META = {
 };
 
 export default function Home() {
-  const [repo, setRepo] = useState('');
-  const [analysis, setAnalysis] = useState(null);
-  const [services, setServices] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
-  const [prUrl, setPrUrl] = useState(null);
-  const [prLoading, setPrLoading] = useState(false);
-  const [lastGenFile, setLastGenFile] = useState<{ path: string, content: string } | null>(null);
-  const [serviceLoading, setServiceLoading] = useState<string | null>(null);
+  const [repo, setRepo] = useState<string>('');
+const [analysis, setAnalysis] = useState<Analysis | null>(null);
+const [services, setServices] = useState<ServiceKey[]>([]);
+
+const [loading, setLoading] = useState<boolean>(false);
+const [result, setResult] = useState<any>(null);
+const [error, setError] = useState<string | null>(null);
+const [prUrl, setPrUrl] = useState<string | null>(null);
+const [prLoading, setPrLoading] = useState<boolean>(false);
+const [lastGenFile, setLastGenFile] = useState<LastGenFile>(null);
+const [serviceLoading, setServiceLoading] = useState<string | null>(null);
 
   const handleDownloadFile = () => {
     if (!lastGenFile) return;
@@ -125,103 +157,121 @@ export default function Home() {
       setAnalysis(data);
       setServices(data.services || []);
     } catch (err) {
-      setError(err.message || 'Failed to analyze repo.');
+      if (err instanceof Error) {
+        setError(err.message || 'Failed to analyze repo.');
+      } else {
+        setError('Failed to analyze repo.');
+      }
     }
     setLoading(false);
   };
 
-  const handleService = async (service) => {
-    setServiceLoading(service);
-    setResult(null);
-    setError(null);
-    setLastGenFile(null);
-    setPrUrl(null);
-    let endpoint = '';
-    let body = {};
-    let filePath = '';
-    let fileContent = '';
+ const handleService = async (service: string) => {
+  setServiceLoading(service);
+  setResult(null);
+  setError(null);
+  setLastGenFile(null);
+  setPrUrl(null);
 
-    switch (service) {
-      case 'review-dockerfile':
-        endpoint = '/api/review-dockerfile';
-        body = { dockerfileContent: analysis.dockerfileContent };
-        break;
-      case 'generate-dockerfile':
-        endpoint = '/api/generate-dockerfile';
-        body = { repo };
-        filePath = 'Dockerfile';
-        break;
-      case 'review-workflow':
-        endpoint = '/api/review-workflow';
-        const workflowFile = analysis.fileTree.find(f => f.startsWith('.github/workflows/'));
-        const workflowRes = await fetch(`/api/fetch-file`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ repo, path: workflowFile }),
-        });
-        const workflowData = await workflowRes.json();
-        body = { workflowContent: workflowData.content };
-        break;
-      case 'generate-workflow':
-        endpoint = '/api/generate-workflow';
-        body = { repo };
-        filePath = '.github/workflows/ci.yml';
-        break;
-      case 'security-audit':
-        endpoint = '/api/security-audit';
-        body = { analysis };
-        break;
-      case 'generate-docs':
-        endpoint = '/api/generate-docs';
-        body = { analysis };
-        filePath = 'README.md';
-        break;
-      case 'explain-dockerfile':
-        endpoint = '/api/explain-file';
-        body = { fileContent: analysis.dockerfileContent, fileType: 'Dockerfile' };
-        break;
-      case 'explain-workflow':
-        endpoint = '/api/explain-file';
-        const wfFile = analysis.fileTree.find(f => f.startsWith('.github/workflows/'));
-        const wfRes = await fetch(`/api/fetch-file`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ repo, path: wfFile }),
-        });
-        const wfData = await wfRes.json();
-        body = { fileContent: wfData.content, fileType: 'GitHub Actions Workflow' };
-        break;
-      default:
-        setError('Unknown service');
+  let endpoint = '';
+  let body: any = {};
+  let filePath = '';
+  let fileContent = '';
+
+  switch (service) {
+    case 'review-dockerfile':
+      endpoint = '/api/review-dockerfile';
+      body = { dockerfileContent: analysis?.dockerfileContent };
+      break;
+    case 'generate-dockerfile':
+      endpoint = '/api/generate-dockerfile';
+      body = { repo };
+      filePath = 'Dockerfile';
+      break;
+    case 'review-workflow': {
+      endpoint = '/api/review-workflow';
+      const workflowFile = analysis?.fileTree.find(f => f.startsWith('.github/workflows/'));
+      if (!workflowFile) {
+        setError('No workflow file found.');
         setServiceLoading(null);
         return;
-    }
-
-    try {
-      const res = await fetch(endpoint, {
+      }
+      const workflowRes = await fetch(`/api/fetch-file`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ repo, path: workflowFile }),
       });
-      const data = await res.json();
-      setResult(data);
-
-      if (['generate-dockerfile', 'generate-workflow', 'generate-docs'].includes(service)) {
-        fileContent =
-          typeof data === 'string'
-            ? data
-            : Object.values(data || {}).find(v => typeof v === 'string') ||
-              JSON.stringify(data, null, 2);
-        setLastGenFile({ path: filePath, content: fileContent });
-      } else {
-        setLastGenFile(null);
-      }
-    } catch (err) {
-      setError('Failed to run service.');
+      const workflowData = await workflowRes.json();
+      body = { workflowContent: workflowData.content };
+      break;
     }
-    setServiceLoading(null);
-  };
-  const getBarColor = (score) => score >= 60 ? "text-green-500" : "text-red-500";
+    case 'generate-workflow':
+      endpoint = '/api/generate-workflow';
+      body = { repo };
+      filePath = '.github/workflows/ci.yml';
+      break;
+    case 'security-audit':
+      endpoint = '/api/security-audit';
+      body = { analysis };
+      break;
+    case 'generate-docs':
+      endpoint = '/api/generate-docs';
+      body = { analysis };
+      filePath = 'README.md';
+      break;
+    case 'explain-dockerfile':
+      endpoint = '/api/explain-file';
+      body = { fileContent: analysis?.dockerfileContent, fileType: 'Dockerfile' };
+      break;
+    case 'explain-workflow': {
+      endpoint = '/api/explain-file';
+      const wfFile = analysis?.fileTree.find(f => f.startsWith('.github/workflows/'));
+      if (!wfFile) {
+        setError('No workflow file found.');
+        setServiceLoading(null);
+        return;
+      }
+      const wfRes = await fetch(`/api/fetch-file`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ repo, path: wfFile }),
+      });
+      const wfData = await wfRes.json();
+      body = { fileContent: wfData.content, fileType: 'GitHub Actions Workflow' };
+      break;
+    }
+    default:
+      setError('Unknown service');
+      setServiceLoading(null);
+      return;
+  }
+
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    setResult(data);
+
+    if (['generate-dockerfile', 'generate-workflow', 'generate-docs'].includes(service)) {
+      fileContent =
+        typeof data === 'string'
+          ? data
+          : Object.values(data || {}).find(v => typeof v === 'string') ||
+            JSON.stringify(data, null, 2);
+      setLastGenFile({ path: filePath, content: fileContent });
+    } else {
+      setLastGenFile(null);
+    }
+  } catch (err) {
+    setError('Failed to run service.');
+  }
+  setServiceLoading(null);
+};
+
+  const getBarColor = (score: number) => score >= 60 ? "text-green-500" : "text-red-500";
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -295,27 +345,28 @@ export default function Home() {
     Suggested Services
   </h2>
           <div className="w-full max-w-3xl grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
-            {services.map(service => (
-              <div
-                key={service}
-                className="bg-white border border-gray-200 rounded-2xl p-6 flex flex-col items-start shadow hover:shadow-lg transition"
-              >
-                <div className="mb-3">{SERVICE_META[service]?.icon || <FaMagic className="text-xl" />}</div>
-                <div className="font-bold text-lg mb-1 text-gray-900">{SERVICE_META[service]?.title || service}</div>
-                <div className="text-gray-500 mb-3 text-sm">{SERVICE_META[service]?.desc || ''}</div>
-                <button
-                  className="mt-auto bg-lime-400 hover:bg-lime-500 text-gray-900 font-bold px-4 py-2 rounded-lg shadow flex items-center gap-2 transition"
-                  disabled={!!serviceLoading}
-                  onClick={() => handleService(service)}
-                >
-                  {serviceLoading === service ? (
-                    <>
-                      <ImSpinner2 className="animate-spin" /> Running...
-                    </>
-                  ) : 'Run'}
-                </button>
-              </div>
-            ))}
+           {services.map(service => (
+  <div
+    key={service}
+    className="bg-white border border-gray-200 rounded-2xl p-6 flex flex-col items-start shadow hover:shadow-lg transition"
+  >
+    <div className="mb-3">{SERVICE_META[service]?.icon || <FaMagic className="text-xl" />}</div>
+    <div className="font-bold text-lg mb-1 text-gray-900">{SERVICE_META[service]?.title || service}</div>
+    <div className="text-gray-500 mb-3 text-sm">{SERVICE_META[service]?.desc || ''}</div>
+    <button
+      className="mt-auto bg-lime-400 hover:bg-lime-500 text-gray-900 font-bold px-4 py-2 rounded-lg shadow flex items-center gap-2 transition"
+      disabled={!!serviceLoading}
+      onClick={() => handleService(service)}
+    >
+      {serviceLoading === service ? (
+        <>
+          <ImSpinner2 className="animate-spin" /> Running...
+        </>
+      ) : 'Run'}
+    </button>
+  </div>
+))}
+
           </div>
           </>
          
