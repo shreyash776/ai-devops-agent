@@ -41,7 +41,7 @@ export default function CircularProgressBar({
           className={color}
         />
       </svg>
-      <span className="text-xl font-bold mt-2">{value}%</span>
+      <span className="text-xl font-extrabold mt-2 text-gray-900">{value}%</span>
       <span className="text-xs text-gray-500">{label}</span>
     </div>
   );
