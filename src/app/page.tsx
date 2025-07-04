@@ -6,6 +6,7 @@ import { MdOutlineDescription, MdOutlineFileDownload } from 'react-icons/md';
 import { ImSpinner2 } from 'react-icons/im';
 import FeatureHighlights from '@/components/FeatureHighlights';
 import HeroSection from '@/components/HeroSection';
+import CircularProgressBar from '@/components/CircularProgressBar';
 
 
 const SERVICE_META = {
@@ -220,6 +221,7 @@ export default function Home() {
     }
     setServiceLoading(null);
   };
+  const getBarColor = (score) => score >= 60 ? "text-green-500" : "text-red-500";
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -264,9 +266,34 @@ export default function Home() {
             {error}
           </div>
         )}
+        {/* //scores */}
+          {analysis?.scores && (
+  <>
+    <h2 className="text-2xl font-bold text-gray-800 mb-2 w-full max-w-3xl text-left">
+      Repository Health Scores
+    </h2>
+    <p className="text-gray-600 mb-6 w-full max-w-3xl text-left">
+      These scores reflect your repository’s documentation, security, CI/CD, and overall DevOps health based on our analysis.
+    </p>
+   <div className="flex flex-wrap gap-8 justify-center mb-8">
+  <CircularProgressBar value={analysis.scores.documentation} label="Docs" color={getBarColor(analysis.scores.documentation)} />
+  <CircularProgressBar value={analysis.scores.security} label="Security" color={getBarColor(analysis.scores.security)} />
+  <CircularProgressBar value={analysis.scores.ci} label="CI/CD" color={getBarColor(analysis.scores.ci)} />
+  <CircularProgressBar value={analysis.scores.hygiene} label="Hygiene" color={getBarColor(analysis.scores.hygiene)} />
+  <CircularProgressBar value={analysis.scores.overall} label="Overall" color={getBarColor(analysis.scores.overall)} />
+</div>
+
+  </>
+)}
+
+
 
        
         {services.length > 0 && (
+          <>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4 w-full max-w-3xl text-left">
+    Suggested Services
+  </h2>
           <div className="w-full max-w-3xl grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
             {services.map(service => (
               <div
@@ -290,6 +317,8 @@ export default function Home() {
               </div>
             ))}
           </div>
+          </>
+         
         )}
 
         
