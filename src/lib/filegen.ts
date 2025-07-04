@@ -3,11 +3,24 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 
 function cleanMarkdownResponse(content: string): string {
   if (!content) return "";
-  return content
-    .replace(/^```[a-zA-Z0-9]*\n?/, "")
-    .replace(/```/g, "")
-    .trim();
+
+  // Remove triple backticks and optional language (like ```yaml)
+  let cleaned = content
+    .replace(/^```[a-zA-Z]*\n?/gm, "")
+    .replace(/^```$/gm, "");
+
+  // Convert escaped newlines like \\n to actual newlines
+  try {
+    cleaned = JSON.parse(`"${cleaned.replace(/"/g, '\\"')}"`);
+  } catch {
+    cleaned = cleaned.replace(/\\n/g, "\n");
+  }
+
+  return cleaned.trim();
 }
+
+
+
 
 function extractTextContent(res: any): string {
   if (!res) return "";
@@ -57,6 +70,7 @@ Respond with ONLY the Dockerfile content. DO NOT include any markdown code block
 
   try {
     const res = await llm.invoke(prompt);
+      console.log("🔍 Raw Gemini output:", JSON.stringify(res, null, 2));
     const output = extractTextContent(res);
     return cleanMarkdownResponse(output);
   } catch (error) {
@@ -99,6 +113,7 @@ Respond with ONLY the YAML content. DO NOT include any markdown code blocks, cod
 
   try {
     const res = await llm.invoke(prompt);
+      console.log("🔍 Raw Gemini output:", JSON.stringify(res, null, 2));
     const output = extractTextContent(res);
     return cleanMarkdownResponse(output);
   } catch (error) {
@@ -161,11 +176,36 @@ List all findings and suggest fixes.
 
 export async function generateDocs(analysis: any): Promise<string> {
   const prompt = `
-You are a DevOps documentation expert. Generate clear documentation for the project's Dockerfile and CI/CD workflow.
-Project details:
+You are a senior DevOps engineer and technical writer. Based on the given project analysis, write a professional and comprehensive README.md file as if written by the project creator.
+
+### Instructions:
+- Write clearly and concisely, using natural human language.
+- Only include sections if relevant data exists in the project analysis.
+- Omit any section that has no useful or specific content — DO NOT write "Not available" or "Not specified".
+- Structure the README with clean markdown and professional tone.
+- Use bullet points and code blocks where helpful.
+- Focus on clarity, usability, and developer-friendliness.
+- Don't mention this was AI-generated or inferred.
+
+### Potential Sections to Include (if relevant data is present):
+1. **Project Overview**
+2. **Tech Stack & Tools**
+3. **Features**
+4. **Getting Started**
+5. **Build & Test**
+6. **Docker Usage**
+7. **CI/CD**
+8. **Configuration**
+9. **Contributing**
+10. **License**
+11. **Contact or Support**
+
+Here is the project analysis data:
 ${JSON.stringify(analysis, null, 2)}
-Documentation should explain how to use the Dockerfile and workflow, and how to contribute.
+
+Respond with ONLY the complete markdown content of the README, no explanations or extra text outside of it.
   `.trim();
+
   try {
     const res = await llm.invoke(prompt);
     return cleanMarkdownResponse(extractTextContent(res));
@@ -174,6 +214,7 @@ Documentation should explain how to use the Dockerfile and workflow, and how to 
     return "# Error: Unable to generate documentation.";
   }
 }
+
 
 
 export async function explainFile(fileContent: string, fileType: string): Promise<string> {
