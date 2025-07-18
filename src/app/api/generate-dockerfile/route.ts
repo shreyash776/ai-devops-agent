@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
   if (!repo) {
     return NextResponse.json({ error: 'No repo provided' }, { status: 400 });
   }
-
+    
   try {
     // Destructure to extract only the string
     const { dockerfile } = await generateDockerfileForRepo(repo);
@@ -16,3 +16,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+

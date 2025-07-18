@@ -25,8 +25,8 @@ const FEATURES = [
 
 export default function FeatureHighlights() {
   return (
-    <section className="w-full max-w-4xl mx-auto mb-12">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+    <section className="w-full max-w-4xl mx-auto mb-12 ">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 px-4 md:px-0">
         {FEATURES.map((feature) => (
           <div
             key={feature.title}
