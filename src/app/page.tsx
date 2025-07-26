@@ -292,14 +292,14 @@ const [serviceLoading, setServiceLoading] = useState<string | null>(null);
       
        
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full max-w-xl mb-8">
-          <input
-            type="url"
-            className="border border-gray-300 bg-white text-gray-800 placeholder-gray-400 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-lime-400"
-            placeholder="Paste GitHub repo URL"
-            value={repo}
-            onChange={(e) => setRepo(e.target.value)}
-            required
-          />
+         <input
+  type="url"
+  className="border border-gray-300 bg-white text-gray-800 placeholder-gray-400 rounded-lg p-3 w-full transition-all duration-300 ease-in-out focus:border-lime-500 focus:ring-2 focus:ring-lime-400 focus:outline-none shadow-sm focus:shadow-md"
+  placeholder="Paste GitHub repo URL"
+  value={repo}
+  onChange={(e) => setRepo(e.target.value)}
+  required
+/>
           <button
             onClick={handleAnalyze}
             className="bg-lime-400 hover:bg-lime-500 text-gray-900 font-bold px-6 py-3 rounded-lg shadow transition flex items-center gap-2"
