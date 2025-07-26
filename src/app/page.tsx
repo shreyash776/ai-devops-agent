@@ -7,7 +7,7 @@ import { ImSpinner2 } from 'react-icons/im';
 import FeatureHighlights from '@/components/FeatureHighlights';
 import HeroSection from '@/components/HeroSection';
 import CircularProgressBar from '@/components/CircularProgressBar';
-
+import { FiCpu } from 'react-icons/fi';
 
 type ServiceKey =
   | 'review-dockerfile'
@@ -278,8 +278,11 @@ const [serviceLoading, setServiceLoading] = useState<string | null>(null);
       
       <header className="flex items-center justify-between px-8 py-6 border-b border-gray-200 bg-white">
         <div className="flex items-center gap-3">
-          <FaMagic className="text-3xl text-lime-500" />
-          <span className="font-extrabold text-2xl text-gray-900 tracking-tight">CodeFlow AI</span>
+          <FiCpu className="text-3xl text-lime-500" />
+         <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900">
+  <span className="text-lime-500">CodeFlow</span> <span className="text-gray-500">AI</span>
+</span>
+        
         </div>
        
       </header>
