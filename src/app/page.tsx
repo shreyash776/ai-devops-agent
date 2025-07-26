@@ -276,17 +276,15 @@ const [serviceLoading, setServiceLoading] = useState<string | null>(null);
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       
-      <header className="flex items-center justify-between px-8 py-6 border-b border-gray-200 bg-white">
-        <div className="flex items-center gap-3">
-          <FiCpu className="text-3xl text-lime-500" />
-         <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900">
-  <span className="text-lime-500">CodeFlow</span> <span className="text-gray-500">AI</span>
-</span>
-        
-        </div>
-       
-      </header>
-
+     <header className="flex items-center justify-between px-8 py-6 border border-gray-200 bg-white/40 backdrop-blur-md backdrop-saturate-150 shadow-md rounded-xl mx-4 mt-4">
+  <div className="flex items-center gap-3">
+    <FiCpu className="text-2xl sm:text-3xl text-lime-500" />
+    <span className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900">
+      <span className="text-lime-500">CodeFlow</span>{' '}
+      <span className="text-black">AI</span>
+    </span>
+  </div>
+</header>
       
       <main className="flex flex-col items-center flex-1 w-full px-4 py-10">
        
