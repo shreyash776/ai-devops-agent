@@ -30,16 +30,43 @@ export default function HeroSection() {
         </motion.span>
       </motion.h1>
 
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.9, duration: 0.8 }}
-        className="text-lg text-gray-600 mt-5 leading-relaxed"
-      >
-        Instantly generate Dockerfiles, CI/CD workflows, documentation, and more.
-        <br />
-        Let AI handle DevOps best practices, security, and explanations—so you can focus on building.
-      </motion.p>
+     
+<motion.div
+  initial="hidden"
+  animate="visible"
+  variants={{
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.3,
+      },
+    },
+  }}
+  className="text-gray-600 mt-6 space-y-4 text-base sm:text-lg leading-relaxed"
+>
+  <motion.p
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.6 }}
+  >
+    Generate <span className="text-gray-800 font-semibold">Dockerfiles</span>, 
+    <span className="text-gray-800 font-semibold"> CI/CD workflows</span>, and 
+    <span className="text-gray-800 font-semibold"> docs</span> instantly.
+  </motion.p>
+  
+  <motion.p
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.6, delay: 0.3 }}
+  >
+    Let AI handle <span className="text-gray-800 font-medium">DevOps</span>, 
+    <span className="text-gray-800 font-medium"> security</span>, and 
+    <span className="text-gray-800 font-medium"> code explanations</span> — 
+    so you can ship faster.
+  </motion.p>
+</motion.div>
+
+
     </section>
   );
 }
