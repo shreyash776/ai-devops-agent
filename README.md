@@ -1,6 +1,6 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Live demo: https://ai-devops-agent-iaol-mp30t9hgu-shreyashs-projects-673b3005.vercel.app/
+## Live demo: https://ai-devops-agent-iaol.vercel.app/
 ## Getting Started
 
 First, run the development server:
