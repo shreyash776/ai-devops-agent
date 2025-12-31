@@ -276,13 +276,18 @@ const [serviceLoading, setServiceLoading] = useState<string | null>(null);
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       
-     <header className="flex items-center justify-between px-8 py-6 border border-gray-200 bg-white/40 backdrop-blur-md backdrop-saturate-150 shadow-md rounded-xl mx-4 mt-4">
+     <header className="max-w-6xl mx-auto w-full flex items-center justify-between px-6 py-4 border border-gray-200 bg-white/80 backdrop-blur-lg shadow-sm rounded-2xl mt-6 mb-2">
   <div className="flex items-center gap-3">
-    <FiCpu className="text-2xl sm:text-3xl text-lime-500" />
-    <span className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900">
-      <span className="text-lime-500">CodeFlow</span>{' '}
-      <span className="text-black">AI</span>
+    <div className="bg-gradient-to-br from-lime-400 to-lime-500 p-2 rounded-xl shadow-md">
+      <FiCpu className="text-xl sm:text-2xl text-white" />
+    </div>
+    <span className="text-2xl sm:text-3xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-jakarta)' }}>
+      <span className="bg-gradient-to-r from-lime-500 to-lime-600 bg-clip-text text-transparent">CodeFlow</span>
+      <span className="text-gray-900"> AI</span>
     </span>
+  </div>
+  <div className="hidden sm:flex items-center gap-2 text-sm font-semibold text-gray-600" style={{ fontFamily: 'var(--font-inter)' }}>
+    <span className="px-3 py-1 bg-lime-50 text-lime-700 rounded-lg">Powered by AI</span>
   </div>
 </header>
       
@@ -320,10 +325,10 @@ const [serviceLoading, setServiceLoading] = useState<string | null>(null);
         {/* //scores */}
           {analysis?.scores && (
   <>
-    <h2 className="text-2xl font-bold text-gray-800 mb-2 w-full max-w-3xl text-left">
+    <h2 className="text-3xl font-bold text-gray-900 mb-3 w-full max-w-3xl text-left tracking-tight" style={{ fontFamily: 'var(--font-jakarta)' }}>
       Repository Health Scores
     </h2>
-    <p className="text-gray-600 mb-6 w-full max-w-3xl text-left">
+    <p className="text-gray-600 mb-6 w-full max-w-3xl text-left text-base sm:text-lg font-medium leading-relaxed" style={{ fontFamily: 'var(--font-inter)' }}>
       These scores reflect your repository’s documentation, security, CI/CD, and overall DevOps health based on our analysis.
     </p>
    <div className="flex flex-wrap gap-8 justify-center mb-8">
@@ -342,7 +347,7 @@ const [serviceLoading, setServiceLoading] = useState<string | null>(null);
        
         {services.length > 0 && (
           <>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4 w-full max-w-3xl text-left">
+            <h2 className="text-3xl font-bold text-gray-900 mb-6 w-full max-w-3xl text-left tracking-tight" style={{ fontFamily: 'var(--font-jakarta)' }}>
     Suggested Services
   </h2>
           <div className="w-full max-w-3xl grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
@@ -351,9 +356,9 @@ const [serviceLoading, setServiceLoading] = useState<string | null>(null);
     key={service}
     className="bg-white border border-gray-200 rounded-2xl p-6 flex flex-col items-start shadow hover:shadow-lg transition"
   >
-    <div className="mb-3">{SERVICE_META[service]?.icon || <FaMagic className="text-xl" />}</div>
-    <div className="font-bold text-lg mb-1 text-gray-900">{SERVICE_META[service]?.title || service}</div>
-    <div className="text-gray-500 mb-3 text-sm">{SERVICE_META[service]?.desc || ''}</div>
+    <div className="mb-4">{SERVICE_META[service]?.icon || <FaMagic className="text-xl" />}</div>
+    <div className="font-bold text-xl mb-2 text-gray-900 tracking-tight" style={{ fontFamily: 'var(--font-jakarta)' }}>{SERVICE_META[service]?.title || service}</div>
+    <div className="text-gray-600 mb-4 text-base leading-relaxed font-medium" style={{ fontFamily: 'var(--font-inter)' }}>{SERVICE_META[service]?.desc || ''}</div>
     <button
       className="mt-auto bg-lime-400 hover:bg-lime-500 text-gray-900 font-bold px-4 py-2 rounded-lg shadow flex items-center gap-2 transition"
       disabled={!!serviceLoading}
