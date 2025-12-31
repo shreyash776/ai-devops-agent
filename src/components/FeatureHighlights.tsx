@@ -2,22 +2,22 @@ import { FaRocket, FaRobot, FaLock, FaRegFileAlt } from 'react-icons/fa';
 
 const FEATURES = [
   {
-    icon: <FaRocket className="text-lime-500 text-2xl" />,
+    icon: <FaRocket className="text-lime-500 text-3xl" />,
     title: "Instant DevOps",
     desc: "Get Dockerfiles, workflows, and docs generated in seconds.",
   },
   {
-    icon: <FaRobot className="text-purple-500 text-2xl" />,
+    icon: <FaRobot className="text-purple-500 text-3xl" />,
     title: "AI-Powered Reviews",
     desc: "Let AI review your configs and suggest best practices.",
   },
   {
-    icon: <FaLock className="text-red-500 text-2xl" />,
+    icon: <FaLock className="text-red-500 text-3xl" />,
     title: "Security Insights",
     desc: "Automatic security checks for your project’s automation.",
   },
   {
-    icon: <FaRegFileAlt className="text-blue-500 text-2xl" />,
+    icon: <FaRegFileAlt className="text-blue-500 text-3xl" />,
     title: "Explain & Learn",
     desc: "AI explains your DevOps files in simple language.",
   },
